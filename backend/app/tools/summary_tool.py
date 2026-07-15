@@ -1,3 +1,5 @@
+import re
+
 from app.services.crud_service import get_interactions_by_doctor
 from app.services.groq_service import llm
 
@@ -6,17 +8,24 @@ def summarize(state):
 
     text = state["message"]
 
-    name = (
-        text.replace("summary", "")
-            .replace("Summary", "")
-            .replace("for", "")
-            .strip()
+    # Extract doctor name
+    match = re.search(
+        r"(?:with|for)\s+(.+)$",
+        text,
+        re.IGNORECASE
     )
+
+    if match:
+        name = match.group(1).strip()
+    else:
+        name = text.strip()
+
+    print("Searching interactions for:", name)
 
     interactions = get_interactions_by_doctor(name)
 
     if not interactions:
-        state["response"] = "No interactions found."
+        state["response"] = f"No interactions found for {name}."
         return state
 
     history = ""
@@ -32,7 +41,12 @@ Next Action: {item.next_action}
 """
 
     prompt = f"""
-Summarize these doctor interactions in 4-5 lines.
+You are an AI CRM Assistant.
+
+Read the following interaction history and generate a concise visit summary
+in 4-5 bullet points.
+
+Interaction History:
 
 {history}
 """
