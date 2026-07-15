@@ -54,7 +54,7 @@ User Message:
 
         doctor = get_hcp_by_name(doctor_name)
 
-        if doctor:
+        if doctor: 
 
             save_interaction(
                 doctor.id,
