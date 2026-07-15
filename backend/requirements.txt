@@ -1,0 +1,12 @@
+pip install fastapi
+pip install uvicorn
+pip install sqlalchemy
+pip install psycopg2-binary
+pip install python-dotenv
+pip install pydantic
+pip install langgraph
+pip install langchain-groq
+pip install langchain-core
+pip install groq
+pip install python-multipart
+pip freeze
