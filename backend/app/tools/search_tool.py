@@ -10,7 +10,14 @@ def search_hcp(state):
 
     db = SessionLocal()
 
-    query = state["message"].strip()
+    query = (
+        state["message"]
+        .replace("Search HCP", "")
+        .replace("search hcp", "")
+        .replace("Search", "")
+        .replace("search", "")
+        .strip()
+    )
 
     doctor = (
         db.query(HCP)
