@@ -160,3 +160,16 @@ def edit_summary(interaction_id, summary):
     db.close()
 
     return interaction
+def get_latest_interaction():
+
+    db = get_db()
+
+    interaction = (
+        db.query(Interaction)
+        .order_by(Interaction.id.desc())
+        .first()
+    )
+
+    db.close()
+
+    return interaction
