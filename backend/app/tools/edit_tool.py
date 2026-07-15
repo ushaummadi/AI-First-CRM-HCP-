@@ -1,18 +1,20 @@
 from app.services.groq_service import llm
-from app.services.crud_service import update_interaction
-import json
+from app.services.crud_service import (
+    get_latest_interaction,
+    update_interaction
+)
+
 
 def edit_interaction(state):
 
+    latest = get_latest_interaction()
+
+    if not latest:
+        state["response"] = "No interactions found."
+        return state
+
     prompt = f"""
-Extract ONLY JSON.
-
-Example:
-
-{{
-    "interaction_id": 1,
-    "summary": "Doctor requested product brochure"
-}}
+Extract ONLY the updated summary.
 
 Message:
 
@@ -21,30 +23,18 @@ Message:
 
     response = llm.invoke(prompt)
 
-    content = response.content.strip()
-    content = content.replace("```json", "")
-    content = content.replace("```", "")
-    content = content.strip()
+    summary = (
+        response.content
+        .replace("```", "")
+        .replace('"', "")
+        .strip()
+    )
 
-    try:
+    update_interaction(
+        latest.id,
+        summary
+    )
 
-        data = json.loads(content)
-
-        interaction = update_interaction(
-            data["interaction_id"],
-            data["summary"]
-        )
-
-        if interaction:
-
-            state["response"] = "✅ Interaction Updated Successfully"
-
-        else:
-
-            state["response"] = "Interaction not found."
-
-    except Exception as e:
-
-        state["response"] = str(e)
+    state["response"] = "✅ Latest Interaction Updated Successfully"
 
     return state
